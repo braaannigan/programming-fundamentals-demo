@@ -1,0 +1,9 @@
+ name: workshop-env
+ channels:
+   - conda-forge
+ dependencies:
+   - python=3.9.1
+   - ipython
+   - xarray
+   - netcdf4
+   - pytest
