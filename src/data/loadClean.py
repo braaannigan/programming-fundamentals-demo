@@ -1,52 +1,40 @@
+from typing import Tuple
 from pathlib import Path
 
+import pandas as pd
 import xarray as xr
 
 
-def getDataPaths():
-    # Make the Path object for the top-level data directory
+def getPaths() -> Tuple(Path, Path, Path):
     dataPath = Path("data")
-    # Make the Path object for the raw data sub-directory
     rawDataPath = dataPath / "raw"
-    # Make the Path object for the interim data sub-directory
     interimDataPath = dataPath / "interim"
-    # Check that the interim data sub-directory exists before you try to write to it
+    processedDataPath = dataPath / "processed"
     if not interimDataPath.exists():
-        # If it doesn't exist then make the directory
         interimDataPath.mkdir()
-    return dataPath, rawDataPath, interimDataPath
+    if not processedDataPath.exists():
+        processedDataPath.mkdir()
+    return rawDataPath, interimDataPath, processedDataPath
 
 
-def generateFilename(dataset):
-    filename = "moc_transports_mod"
+def generateFilename(dataset: str) -> str:
+    filename = "atlanticInterpolated"
     if dataset == "test":
         filename += "test"
-    filename += ".nc"
+    filename += ".csv"
     return filename
 
 
-def loadRawData(dataset):
-    dataPath, rawDataPath, interimDataPath = getDataPaths()
-    filename = generateFilename(dataset=dataset)
-    ds = xr.open_dataset(rawDataPath / filename)
-    return ds
-
-
-def cleanRawData(dataset):
-    ds = loadRawData(dataset=dataset)
-    newNames = {
-        "t_therm10": "thermocline",
-        "t_aiw10": "AIW",
-        "t_ud10": "UD",
-        "t_ld10": "LD",
-        "t_bw10": "BW",
-        "t_gs10": "GS",
-        "t_ek10": "Ekman",
-        "t_umo10": "UMO",
-        "moc_mar_hc10": "MOC",
-    }
-    ds = ds.rename(name_dict=newNames)
-    dataPath, rawDataPath, interimDataPath = getDataPaths()
-    filename = generateFilename(dataset=dataset)
-    ds.to_netcdf(interimDataPath / filename)
-    return ds
+def loadDataFromCSV(duplicateN: int = 1) -> pd.DataFrame:
+    rawDataPath, interimDataPath, processedDataPath = getPaths()
+    df = pd.read_csv(rawDataPath / "atlanticInterpolated.csv")
+    z = df.z.values
+    dropColumns = []
+    for col in df.columns:
+        if df.loc[30, col] > df.loc[0, col] - 0.1:
+            dropColumns.append(col)
+    df = df.drop(columns=dropColumns)
+    df = pd.concat([df for _ in range(duplicateN)], axis=1)
+    temps = df.iloc[:, 1:].values
+    surfaceTemps = temps[:2, :].mean(axis=0)
+    return df, temps, z, surfaceTemps

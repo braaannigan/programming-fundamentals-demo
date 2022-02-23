@@ -3,7 +3,15 @@
    - conda-forge
  dependencies:
    - python=3.9.1
-   - ipython
+   - ipython=8.0.1
+   - jupyterlab
+   - ipykernel
+   - pytest
    - xarray
    - netcdf4
-   - pytest
+   - numexpr
+   - jax
+   - numba
+   - joblib
+   - dask
+   - altair
