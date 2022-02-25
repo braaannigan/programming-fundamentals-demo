@@ -6,6 +6,7 @@
    - ipython=8.0.1
    - jupyterlab
    - ipykernel
+   - line_profiler
    - pytest
    - xarray
    - netcdf4
@@ -15,3 +16,4 @@
    - joblib
    - dask
    - altair
+   - pythran
