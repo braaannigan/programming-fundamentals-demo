@@ -1,11 +1,13 @@
-from typing import Tuple
+import sys
 from pathlib import Path
 
 import pandas as pd
-import xarray as xr
 
 
-def getPaths() -> Tuple(Path, Path, Path):
+def getPaths():
+    """
+    Generate the paths to the data directories
+    """
     dataPath = Path("data")
     rawDataPath = dataPath / "raw"
     interimDataPath = dataPath / "interim"
@@ -18,6 +20,9 @@ def getPaths() -> Tuple(Path, Path, Path):
 
 
 def generateFilename(dataset: str) -> str:
+    """
+    Generate the filename for the full and test dataset
+    """
     filename = "atlanticInterpolated"
     if dataset == "test":
         filename += "test"
@@ -25,16 +30,28 @@ def generateFilename(dataset: str) -> str:
     return filename
 
 
-def loadDataFromCSV(duplicateN: int = 1) -> pd.DataFrame:
+def parseArgs():
+    """
+    Parse the user arguments for the full or test dataset
+    """
+    if len(sys.argv) > 1:
+        dataset = sys.argv[1]
+    else:
+        dataset = ""
+    return dataset
+
+
+def main() -> pd.DataFrame:
+    """
+    Main function to load the data
+    """
+    dataset = parseArgs()
     rawDataPath, interimDataPath, processedDataPath = getPaths()
-    df = pd.read_csv(rawDataPath / "atlanticInterpolated.csv")
-    z = df.z.values
-    dropColumns = []
-    for col in df.columns:
-        if df.loc[30, col] > df.loc[0, col] - 0.1:
-            dropColumns.append(col)
-    df = df.drop(columns=dropColumns)
-    df = pd.concat([df for _ in range(duplicateN)], axis=1)
-    temps = df.iloc[:, 1:].values
-    surfaceTemps = temps[:2, :].mean(axis=0)
-    return df, temps, z, surfaceTemps
+    filename = generateFilename(dataset=dataset)
+    filePath = rawDataPath / filename
+    df = pd.read_csv(filePath)
+    return df
+
+
+if __name__ == "__main__":
+    main()
