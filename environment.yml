@@ -18,5 +18,3 @@
    - altair
    - pythran
    - pyarrow
-   - duckdb
-   - vaex
