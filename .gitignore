@@ -1,3 +1,4 @@
 *.so
 demo-env
 *pyc
+data/raw/large*

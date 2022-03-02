@@ -7,14 +7,16 @@
    - jupyterlab
    - ipykernel
    - line_profiler
+   - pyinstrument
    - pytest
    - xarray
    - netcdf4
    - numexpr
-   - jax
    - numba
    - joblib
    - dask
    - altair
    - pythran
    - pyarrow
+   - duckdb
+   - vaex
